@@ -1,0 +1,39 @@
+.menu-container {
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.vertical-menu > h1 {
+  color: #069494;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.vertical-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 600px;
+}
+
+.menu-button {
+  padding: 15px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border: 2px solid #069494;
+  border-radius: 8px;
+  background: white;
+  color: #069494;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.menu-button:hover {
+  background-color: #069494;
+  color: white;
+}
+  

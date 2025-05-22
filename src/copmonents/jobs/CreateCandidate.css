@@ -1,0 +1,69 @@
+.create-candidate-container {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background-color: #069494;
+
+}
+
+.title {
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.error {
+  color: red;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.candidate-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: white;
+}
+
+.candidate-form input,
+.candidate-form select {
+  width: 90%;
+  padding: 8px 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.candidate-form input::placeholder {
+  color: #999;
+}
+
+.submit-btn {
+  width: 100%;
+  background-color: white;
+  color: #069494;
+  border: white;
+  padding: 10px 0;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+  background-color: #f0f0f0;
+  color: #069494;
+  border: 1px solid #069494;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
+  transition: transform 0.1s;
+  
+}
+

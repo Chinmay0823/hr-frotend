@@ -1,0 +1,148 @@
+/* ScheduledInterviews.css */
+
+.si-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.si-heading {
+  text-align: center;
+  color: #069494;
+  margin-bottom: 30px;
+}
+
+.role-button {
+  background-color: #069494;
+  color: white;
+  padding: 10px 15px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  margin-bottom: 10px;
+}
+
+.arrow {
+  display: inline-block;
+  transition: transform 0.3s;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.role-expanded .arrow {
+  transform: rotate(90deg);
+}
+
+.no-data {
+  font-style: italic;
+  color: #666;
+  margin: 10px 0 20px;
+}
+
+.candidate-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.candidate-table th {
+  background-color: #069494;
+  color: white;
+  padding: 10px;
+  text-align: left;
+}
+
+.candidate-table td {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.view-button {
+  padding: 6px 12px;
+  background-color: #069494;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal content */
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-title {
+  color: white;
+  margin-bottom: 15px;
+}
+
+.decision-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.select-btn, .reject-btn {
+  padding: 8px 14px;
+  margin: 0 8px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.select-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.reject-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.status-display {
+  margin-top: 16px;
+  font-weight: bold;
+  color: #1e88e5;
+}
