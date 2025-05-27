@@ -36,7 +36,7 @@ const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
-    navigate('/recruitment');
+    navigate('/');
   };
 
   return (

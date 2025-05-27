@@ -37,7 +37,7 @@ function App() {
       {showRecruitmentNavbar && <RecruitmentNavbar />}
 
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/recruitment" element={<LoginPage />} />
 
         <Route
           path="/admin"
