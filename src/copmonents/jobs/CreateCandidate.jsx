@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./CreateCandidate.css";
-import axiosInstance from "../../utils/axios"; 
+import axiosInstance from "../../../axiosInstance"; 
 
 const jobRoles = ["Telecaller", "Counsellor", "Trainer", "HR"];
 const experienceOptions = ["Fresher", "1yrs", "2yrs"];

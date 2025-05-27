@@ -1,68 +1,50 @@
-.container {
-  padding: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
+.admin-container {
   text-align: center;
+  padding: 80px 20px;
+  background-color: #eaf3f5;
+  min-height: 100vh;
 }
 
-.title {
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 40px;
+.admin-container h1 {
+  color: #035d5b;
+  font-size: 40px; /* Increased from 32px */
+  margin-bottom: 60px; /* Slightly more spacing */
 }
 
-.circle-button-container {
+.admin-options {
   display: flex;
   justify-content: center;
-  gap: 40px;
-  flex-wrap: wrap;
+  gap: 120px; /* More spacing between cards */
+  flex-wrap: wrap; /* Makes it responsive */
 }
 
-/* Full circular block */
-.circle {
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
+.admin-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  transition: transform 0.3s ease, background-color 0.3s ease;
-  font-weight: bold;
-  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.3s;
+  width: 180px; /* Set card width for consistency */
 }
 
-.circle:hover {
-  transform: scale(1.05);
-  
+.admin-card:hover {
+  transform: scale(1.08); /* Slightly more hover effect */
 }
 
-.circle img {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
+.icon-circle {
+  width: 150px; /* Increased from 120px */
+  height: 150px;
+  background-color: #007b7a;
   border-radius: 50%;
-  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.circle span {
-  z-index: 1;
+.admin-card h3 {
+  margin-top: 20px;
+  color: #007b7a;
+  font-weight: bold;
+  font-size: 22px; /* Increased from 18px */
 }
 
-/* Responsive */
-@media (max-width: 480px) {
-  .circle {
-    width: 120px;
-    height: 120px;
-    font-size: 14px;
-  }
-
-  .circle img {
-    width: 70px;
-    height: 70px;
-    margin-bottom: 8px;
-  }
-}

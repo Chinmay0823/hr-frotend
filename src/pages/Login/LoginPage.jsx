@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import axios from '../../utils/axios';
+import axios from '../../../axiosInstance';
 import './Login.css'; 
 
 const LoginPage = () => {

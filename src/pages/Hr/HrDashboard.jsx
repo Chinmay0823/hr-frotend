@@ -1,27 +1,34 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import "./HRDashboard.css";
-import placment from "../../assets/placment.png";
-import recruiter from "../../assets/Recrutment.jpeg";
+import React from 'react';
+import './HRDashboard.css'; 
+import { FiBriefcase } from 'react-icons/fi';
+import { FaUsers } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const HRDashboard = () => {
   const navigate = useNavigate();
 
+ 
+
   return (
-     <div className="container">
-          <h1 className="title">Welcome Admin!</h1>
-          <div className="circle-button-container">
-            <div className="circle" onClick={() => navigate("/placements")}>
-              <img src={placment} alt="Placement" />
-              <span>Placement</span>
-            </div>
-    
-            <div className="circle" onClick={() => navigate("/recruitment")}>
-              <img src={recruiter} alt="Recruiter" />
-              <span>Recruiter</span>
-            </div>
+    <div className="admin-container">
+     
+
+      <h1>Welcome HR!</h1>
+      <div className="admin-options">
+        <div className="admin-card" onClick={() => navigate('/placements')}>
+          <div className="icon-circle">
+            <FiBriefcase size={50} color="white" />
           </div>
+          <h3>Placement</h3>
         </div>
+        <div className="admin-card" onClick={() => navigate('/recruitment')}>
+          <div className="icon-circle">
+            <FaUsers size={50} color="white" />
+          </div>
+          <h3>Recruitment</h3>
+        </div>
+      </div>
+    </div>
   );
 };
 

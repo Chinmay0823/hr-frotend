@@ -1,13 +1,21 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 
-const Navbar = () => {
+const Navbar = (role) => {
+  const homePath = role === 'admin' ? '/admin' : '/hr';
+
+  const navigate = useNavigate();
+
+   const handleLogout = () => {
+    localStorage.clear();
+    navigate('/');
+  };
   return (
     <nav className="navbar">
       <ul>
         <li>
-          <NavLink to="/admin" className="nav-link">
+          <NavLink to={homePath} className="nav-link">
             Home
           </NavLink>
         </li>
@@ -38,6 +46,11 @@ const Navbar = () => {
           </NavLink>
         </li>
 
+          <li>
+             <button className="logout-btn top-right" onClick={handleLogout}>
+        Logout
+      </button>
+          </li>
        
       </ul>
     </nav>

@@ -1,25 +1,41 @@
 import React, { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
+
 import LoginPage from "./pages/Login/LoginPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import HRDashboard from "./pages/Hr/HrDashboard";
-import SuperAdminDashboard from "./pages/superadmin/Superadmindashboard";
-import PrivateRoute from "./copmonents/privateroute/PrivateRoute";
-import PlacementList from "./pages/placement/PlacmentList";
+  import PrivateRoute from "./copmonents/privateroute/PrivateRoute";
+
+import PlacementList from "./pages/placement/PlacementDashboard";
 import PlacementCreate from "./pages/placement/PlacementCreate";
 import Recruitment from "./copmonents/recruter/Recruitment";
 import Jobs from "./copmonents/jobs/Jobs";
 import ScheduledInterviews from "./copmonents/sheduled/SheduledInterview";
 import OfferRolledOut from "./copmonents/offer/Offer";
-import Navbar from "./copmonents/navbar/Navbar";
 import Report from "./copmonents/report/Report";
 
+// Custom navbars
+import PlacementNavbar from "./copmonents/navbar/PlacementNavbar";
+import RecruitmentNavbar from "./copmonents/navbar/RecruitmentNavbar";
+
 function App() {
-  const [candidatesData, setCandidatesData] = useState({}); // Shared state
+  const [candidatesData, setCandidatesData] = useState({});
+  const location = useLocation();
+
+  // Determine which navbar to show
+  const showPlacementNavbar = location.pathname.startsWith("/placements");
+  const showRecruitmentNavbar =
+    location.pathname === "/recruitment" ||
+    location.pathname === "/jobs" ||
+    location.pathname === "/scheduled-interviews" ||
+    location.pathname === "/offers" ||
+    location.pathname === "/report";
 
   return (
     <>
-      <Navbar />
+      {showPlacementNavbar && <PlacementNavbar />}
+      {showRecruitmentNavbar && <RecruitmentNavbar />}
+
       <Routes>
         <Route path="/" element={<LoginPage />} />
 
@@ -41,14 +57,6 @@ function App() {
           }
         />
 
-        <Route
-          path="/superadmin"
-          element={
-            <PrivateRoute role="superadmin">
-              <SuperAdminDashboard />
-            </PrivateRoute>
-          }
-        />
 
         <Route
           path="/placements"
@@ -70,13 +78,11 @@ function App() {
 
         <Route path="/recruitment" element={<Recruitment />} />
 
-        {/* Pass setCandidatesData to Jobs */}
         <Route
           path="/jobs"
           element={<Jobs setCandidatesData={setCandidatesData} />}
         />
 
-        {/* Pass candidatesData to Report */}
         <Route
           path="/report"
           element={<Report candidatesData={candidatesData} />}

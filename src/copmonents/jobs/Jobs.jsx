@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Jobs.css";
-import CreateCandidate from "./CreateCandidate"; 
-import axiosInstance from "../../utils/axios";
+import CreateCandidate from "./CreateCandidate";
+import axiosInstance from "../../../axiosInstance";
 
 const jobRoles = ["Telecaller", "Counsellor", "Trainer", "HR"];
 const experienceOptions = ["All", "Fresher", "1yrs", "2yrs"];
@@ -21,14 +21,12 @@ const Jobs = ({ setCandidatesData }) => {
     setError(null);
     try {
       const res = await axiosInstance.get("/recruitment/candidates");
-
       const scheduled =
         JSON.parse(localStorage.getItem("scheduledInterviews")) || [];
 
       const groupedByRole = {};
       res.data.forEach((candidate) => {
         const scheduledData = scheduled.find((sc) => sc._id === candidate._id);
-
         const mergedCandidate = scheduledData
           ? { ...candidate, ...scheduledData, status: "Scheduled" }
           : { ...candidate, status: "Pending" };
@@ -40,7 +38,6 @@ const Jobs = ({ setCandidatesData }) => {
         groupedByRole[role].push(mergedCandidate);
       });
 
-      // Set state
       setLocalCandidatesData(groupedByRole);
       setCandidatesData(groupedByRole);
     } catch (err) {
@@ -53,8 +50,7 @@ const Jobs = ({ setCandidatesData }) => {
 
   useEffect(() => {
     fetchCandidates();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  },[]);
 
   const toggleRole = (role) => {
     setExpandedRole(expandedRole === role ? null : role);
@@ -85,28 +81,28 @@ const Jobs = ({ setCandidatesData }) => {
       status: "Scheduled",
     };
 
-    // Save/update in localStorage
-    const scheduled = JSON.parse(localStorage.getItem("scheduledInterviews")) || [];
-
-    // Remove old record for this candidate (if any)
-    const filteredScheduled = scheduled.filter((sc) => sc._id !== selectedCandidate._id);
-
-    // Add updated candidate
+    const scheduled =
+      JSON.parse(localStorage.getItem("scheduledInterviews")) || [];
+    const filteredScheduled = scheduled.filter(
+      (sc) => sc._id !== selectedCandidate._id
+    );
     filteredScheduled.push(updatedCandidate);
-
     localStorage.setItem("scheduledInterviews", JSON.stringify(filteredScheduled));
 
-    // Update local candidates data in state
     const updatedRoleData = localCandidatesData[expandedRole].map((c) =>
       c._id === selectedCandidate._id ? updatedCandidate : c
     );
 
-    setLocalCandidatesData((prev) => ({ ...prev, [expandedRole]: updatedRoleData }));
-    setCandidatesData((prev) => ({ ...prev, [expandedRole]: updatedRoleData }));
+    setLocalCandidatesData((prev) => ({
+      ...prev,
+      [expandedRole]: updatedRoleData,
+    }));
+    setCandidatesData((prev) => ({
+      ...prev,
+      [expandedRole]: updatedRoleData,
+    }));
 
-    // Update selectedCandidate to updatedCandidate so modal shows status view
     setSelectedCandidate(updatedCandidate);
-
     alert("Interview scheduled!");
     setSchedule({ date: "", description: "" });
   };
@@ -131,7 +127,7 @@ const Jobs = ({ setCandidatesData }) => {
       {loading && <p>Loading candidates...</p>}
       {error && <p className="error-text">{error}</p>}
 
-      {jobRoles.map((role) => {
+      {jobRoles.map((role, index) => {
         const isExpanded = expandedRole === role;
         const candidates = localCandidatesData[role] || [];
         const filteredCandidates =
@@ -145,15 +141,16 @@ const Jobs = ({ setCandidatesData }) => {
               onClick={() => toggleRole(role)}
               className={`role-button ${isExpanded ? "role-expanded" : ""}`}
             >
-              {role}
-              <span className="arrow">▶</span>
+              <span className="role-number">{index + 1}</span>
+              {role} <span style={{ marginLeft: 6 }}>({candidates.length})</span>
+              <span className="arrow">{isExpanded ? "▼" : "▶"}</span>
             </button>
 
             {isExpanded && (
               <div id={`${role}-content`}>
                 <label htmlFor={`${role}-exp-filter`} className="exp-filter">
                   Filter by Experience:
-                </label>
+                </label>  
                 <select
                   id={`${role}-exp-filter`}
                   value={filters[role] || "All"}
@@ -212,7 +209,6 @@ const Jobs = ({ setCandidatesData }) => {
         );
       })}
 
-      {/* Candidate Details + Schedule Modal */}
       {selectedCandidate && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -220,23 +216,12 @@ const Jobs = ({ setCandidatesData }) => {
               &times;
             </button>
             <h2>Candidate Details</h2>
-            <p>
-              <strong>Name:</strong> {selectedCandidate.name}
-            </p>
-            <p>
-              <strong>Contact:</strong> {selectedCandidate.contact}
-            </p>
-            <p>
-              <strong>Email:</strong> {selectedCandidate.email}
-            </p>
-            <p>
-              <strong>Gender:</strong> {selectedCandidate.gender}
-            </p>
-            <p>
-              <strong>Experience:</strong> {selectedCandidate.experience}
-            </p>
+            <p><strong>Name:</strong> {selectedCandidate.name}</p>
+            <p><strong>Contact:</strong> {selectedCandidate.contact}</p>
+            <p><strong>Email:</strong> {selectedCandidate.email}</p>
+            <p><strong>Gender:</strong> {selectedCandidate.gender}</p>
+            <p><strong>Experience:</strong> {selectedCandidate.experience}</p>
             <hr />
-
             {selectedCandidate.status !== "Scheduled" ? (
               <>
                 <h3>Schedule Interview</h3>
@@ -264,38 +249,25 @@ const Jobs = ({ setCandidatesData }) => {
             ) : (
               <>
                 <h3>Interview Scheduled</h3>
-                <p>
-                  <strong>Status:</strong> {selectedCandidate.status}
-                </p>
-                <p>
-                  <strong>Date:</strong> {selectedCandidate.interviewDate || "N/A"}
-                </p>
-                <p>
-                  <strong>Description:</strong> {selectedCandidate.description || "N/A"}
-                </p>
+                <p><strong>Status:</strong> {selectedCandidate.status}</p>
+                <p><strong>Date:</strong> {selectedCandidate.interviewDate || "N/A"}</p>
+                <p><strong>Description:</strong> {selectedCandidate.description || "N/A"}</p>
               </>
             )}
           </div>
         </div>
       )}
 
-      {/* Candidate Creation Modal */}
       {showCandidateForm && (
-        <div
-          className="modal-overlay"
-          onClick={() => setShowCandidateForm(false)}
-        >
+        <div className="modal-overlay" onClick={() => setShowCandidateForm(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="modal-close"
-              onClick={() => setShowCandidateForm(false)}
-            >
+            <button className="modal-close" onClick={() => setShowCandidateForm(false)}>
               &times;
             </button>
             <CreateCandidate
               onSuccess={() => {
                 setShowCandidateForm(false);
-                fetchCandidates(); // Refresh data after adding
+                fetchCandidates();
               }}
             />
           </div>
