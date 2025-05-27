@@ -15,12 +15,12 @@ const AdminDashboard = () => {
 
       <h1>Welcome Admin!</h1>
       <div className="admin-options">
-        <div className="admin-card" onClick={() => navigate('/placements')}>
+        {/* <div className="admin-card" onClick={() => navigate('/placements')}>
           <div className="icon-circle">
             <FiBriefcase size={50} color="white" />
           </div>
           <h3>Placement</h3>
-        </div>
+        </div> */}
         <div className="admin-card" onClick={() => navigate('/recruitment')}>
           <div className="icon-circle">
             <FaUsers size={50} color="white" />
