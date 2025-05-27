@@ -3,7 +3,7 @@
   "builds": [
     {
       "src": "client/hr-requiter/package.json",
-      "use": "@vercel/react"
+      "use": "@vercel/static-build"
     },
     {
       "src": "server/index.js",
@@ -13,11 +13,11 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/server/$1"
+      "dest": "/server/index.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/client/hr-requiter/$1"
+      "dest": "/client/hr-requiter/index.html"
     }
   ]
 }
