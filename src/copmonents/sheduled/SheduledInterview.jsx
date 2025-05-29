@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axiosInstance from "../../../axiosInstance"; // Adjust path if needed
 import "./ScheduledInterviews.css";
 
 const jobRoles = ["Telecaller", "Counsellor", "Trainer", "HR"];
@@ -7,6 +8,7 @@ const ScheduledInterviews = () => {
   const [interviewsByRole, setInterviewsByRole] = useState({});
   const [expandedRole, setExpandedRole] = useState(null);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [descriptionInput, setDescriptionInput] = useState("");
 
   useEffect(() => {
     loadInterviews();
@@ -25,28 +27,46 @@ const ScheduledInterviews = () => {
     setExpandedRole(expandedRole === role ? null : role);
   };
 
-  const closeModal = () => setSelectedCandidate(null);
+  const closeModal = () => {
+    setSelectedCandidate(null);
+    setDescriptionInput("");
+  };
 
-  const handleDecision = (decision) => {
+  const handleDecision = async (decision) => {
     if (!selectedCandidate) return;
 
-    const updatedCandidate = { ...selectedCandidate, status: decision };
+    const updatedCandidate = {
+      ...selectedCandidate,
+      status: decision,
+      description: descriptionInput,
+    };
 
-    // Save to selected/rejected list
-    const key = decision === "Selected" ? "offerRolledOut" : "rejectedCandidates";
-    const existing = JSON.parse(localStorage.getItem(key)) || [];
-    const filtered = existing.filter((item) => item._id !== updatedCandidate._id);
-    localStorage.setItem(key, JSON.stringify([...filtered, updatedCandidate]));
+    try {
+      // ✅ Update in MongoDB
+      await axiosInstance.put(`/recruitment/candidates/${updatedCandidate._id}`, {
+        status: decision,
+        description: descriptionInput,
+      });
 
-    // Update scheduledInterviews list
-    const all = JSON.parse(localStorage.getItem("scheduledInterviews")) || [];
-    const updatedList = all.map((c) =>
-      c._id === updatedCandidate._id ? updatedCandidate : c
-    );
-    localStorage.setItem("scheduledInterviews", JSON.stringify(updatedList));
+      // ✅ Update selected/rejected list in localStorage
+      const key = decision === "Selected" ? "offerRolledOut" : "rejectedCandidates";
+      const existing = JSON.parse(localStorage.getItem(key)) || [];
+      const filtered = existing.filter((item) => item._id !== updatedCandidate._id);
+      localStorage.setItem(key, JSON.stringify([...filtered, updatedCandidate]));
 
-    setSelectedCandidate(updatedCandidate);
-    loadInterviews();
+      // ✅ Update scheduledInterviews list in localStorage
+      const all = JSON.parse(localStorage.getItem("scheduledInterviews")) || [];
+      const updatedList = all.map((c) =>
+        c._id === updatedCandidate._id ? updatedCandidate : c
+      );
+      localStorage.setItem("scheduledInterviews", JSON.stringify(updatedList));
+
+      setSelectedCandidate(updatedCandidate);
+      loadInterviews();
+    } catch (error) {
+      console.error("Error updating candidate:", error);
+      alert("Failed to update status. Please try again.");
+    }
   };
 
   const getStatusLabel = (status) => {
@@ -82,8 +102,8 @@ const ScheduledInterviews = () => {
                         <th>Gender</th>
                         <th>Experience</th>
                         <th>Date</th>
-                        <th>View</th>
                         <th>Status</th>
+                        <th>View</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -93,10 +113,17 @@ const ScheduledInterviews = () => {
                           <td>{c.contact}</td>
                           <td>{c.email}</td>
                           <td>{c.gender}</td>
-                          <td>{c.experience}</td>
                           <td>{c.interviewDate}</td>
+                          <td>{c.experience}</td>
+                          <td>{getStatusLabel(c.status)}</td>  
                           <td>
-                            <button onClick={() => setSelectedCandidate(c)} className="view-button">
+                            <button
+                              onClick={() => {
+                                setSelectedCandidate(c);
+                                setDescriptionInput(c.description || "");
+                              }}
+                              className="view-button"
+                            >
                               View
                             </button>
                           </td>
@@ -126,7 +153,15 @@ const ScheduledInterviews = () => {
             <p><strong>Gender:</strong> {selectedCandidate.gender}</p>
             <p><strong>Experience:</strong> {selectedCandidate.experience}</p>
             <p><strong>Date:</strong> {selectedCandidate.interviewDate}</p>
-            <p><strong>Description:</strong> {selectedCandidate.description}</p>
+            <div>
+              <label><strong>Description:</strong></label>
+              <textarea
+                value={descriptionInput}
+                onChange={(e) => setDescriptionInput(e.target.value)}
+                rows={3}
+                style={{ width: "100%", marginTop: "5px" }}
+              />
+            </div>
 
             {selectedCandidate.status === "Scheduled" || !selectedCandidate.status ? (
               <div className="decision-buttons">

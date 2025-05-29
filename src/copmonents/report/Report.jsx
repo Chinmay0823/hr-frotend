@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import './Report.css';
+import React, { useEffect, useState } from "react";
+import "./Report.css";
 
 const Report = ({ candidatesData }) => {
   const [todayStats, setTodayStats] = useState({
@@ -20,55 +20,58 @@ const Report = ({ candidatesData }) => {
     const todayStr = new Date().toISOString().slice(0, 10);
     const now = new Date();
 
-    // ✅ Normalize candidatesData: flat array or grouped object
+    // Normalize candidatesData to a flat array
     const allCandidates = Array.isArray(candidatesData)
       ? candidatesData
       : Object.values(candidatesData || {}).flat();
 
     const totalCalls = allCandidates.length;
 
-    // ✅ Get scheduled interviews and offers from localStorage
-    const scheduled = JSON.parse(localStorage.getItem('scheduledInterviews')) || [];
-    const offers = JSON.parse(localStorage.getItem('offerRolledOut')) || [];
+    // Get scheduled interviews and offers from localStorage
+    const scheduled = JSON.parse(localStorage.getItem("scheduledInterviews")) || [];
+    const offers = JSON.parse(localStorage.getItem("offerRolledOut")) || [];
 
-    const connectedCalls = scheduled.length;
-
-    const scheduledToday = scheduled.filter(item => item.interviewDate === todayStr).length;
-    const offersToday = offers.filter(item => item.interviewDate === todayStr).length;
-
-    const scheduledMonth = scheduled.filter(item => {
+    // Filter scheduled interviews by date
+    const scheduledTodayList = scheduled.filter(
+      (item) => item.interviewDate === todayStr
+    );
+    const scheduledMonthList = scheduled.filter((item) => {
       if (!item.interviewDate) return false;
       const d = new Date(item.interviewDate);
       return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    }).length;
+    });
 
-    const offersMonth = offers.filter(item => {
+    // Filter offers by date
+    const offersTodayList = offers.filter(
+      (item) => item.interviewDate === todayStr
+    );
+    const offersMonthList = offers.filter((item) => {
       if (!item.interviewDate) return false;
       const d = new Date(item.interviewDate);
       return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    }).length;
+    });
 
     setTodayStats({
       totalCalls,
-      connectedCalls,
-      scheduledInterviews: scheduledToday,
-      offers: offersToday,
+      connectedCalls: scheduledTodayList.length, // connected calls TODAY only
+      scheduledInterviews: scheduledTodayList.length,
+      offers: offersTodayList.length,
     });
 
     setMonthStats({
       totalCalls,
-      connectedCalls,
-      scheduledInterviews: scheduledMonth,
-      offers: offersMonth,
+      connectedCalls: scheduledMonthList.length, // connected calls THIS MONTH only
+      scheduledInterviews: scheduledMonthList.length,
+      offers: offersMonthList.length,
     });
   }, [candidatesData]);
 
   const renderGrid = (stats) => {
     const data = {
-      'Total Calls (Candidates)': stats.totalCalls,
-      'Connected Calls (Scheduled)': stats.connectedCalls,
-      'Scheduled Interviews': stats.scheduledInterviews,
-      'Offers Rolled Out': stats.offers,
+      "Total Calls (Candidates)": stats.totalCalls,
+      "Connected Calls (Scheduled)": stats.connectedCalls,
+      "Scheduled Interviews": stats.scheduledInterviews,
+      "Offers Rolled Out": stats.offers,
     };
 
     return (

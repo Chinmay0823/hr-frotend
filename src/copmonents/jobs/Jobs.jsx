@@ -15,42 +15,54 @@ const Jobs = ({ setCandidatesData }) => {
   const [localCandidatesData, setLocalCandidatesData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [submittingSchedule, setSubmittingSchedule] = useState(false);
 
   const fetchCandidates = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await axiosInstance.get("/recruitment/candidates");
-      const scheduled =
-        JSON.parse(localStorage.getItem("scheduledInterviews")) || [];
+  setLoading(true);
+  setError(null);
+  try {
+    const res = await axiosInstance.get("/recruitment/candidates");
+    const scheduled =
+      JSON.parse(localStorage.getItem("scheduledInterviews")) || [];
 
-      const groupedByRole = {};
-      res.data.forEach((candidate) => {
-        const scheduledData = scheduled.find((sc) => sc._id === candidate._id);
-        const mergedCandidate = scheduledData
-          ? { ...candidate, ...scheduledData, status: "Scheduled" }
-          : { ...candidate, status: "Pending" };
+    // Log API response for debugging
+    console.log("API candidate response:", res.data);
 
-        const role = mergedCandidate.role;
-        if (!groupedByRole[role]) {
-          groupedByRole[role] = [];
-        }
-        groupedByRole[role].push(mergedCandidate);
-      });
+    const candidates = Array.isArray(res.data)
+      ? res.data
+      : Array.isArray(res.data.candidates)
+      ? res.data.candidates
+      : [];
 
-      setLocalCandidatesData(groupedByRole);
-      setCandidatesData(groupedByRole);
-    } catch (err) {
-      console.error("Failed to fetch candidates", err);
-      setError("Failed to fetch candidates");
-    } finally {
-      setLoading(false);
-    }
-  };
+    const groupedByRole = {};
+    candidates.forEach((candidate) => {
+      const scheduledData = scheduled.find((sc) => sc._id === candidate._id);
+      const mergedCandidate = scheduledData
+        ? { ...candidate, ...scheduledData, status: "Scheduled" }
+        : { ...candidate, status: "Pending" };
+
+      const role = mergedCandidate.role;
+      if (!groupedByRole[role]) {
+        groupedByRole[role] = [];
+      }
+      groupedByRole[role].push(mergedCandidate);
+    });
+
+    setLocalCandidatesData(groupedByRole);
+    setCandidatesData(groupedByRole);
+    setFilters({}); // reset filters on fetch
+  } catch (err) {
+    console.error("Failed to fetch candidates", err);
+    setError("Failed to fetch candidates");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchCandidates();
-  },[]);
+  }, []);
 
   const toggleRole = (role) => {
     setExpandedRole(expandedRole === role ? null : role);
@@ -68,11 +80,27 @@ const Jobs = ({ setCandidatesData }) => {
     setSchedule((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleScheduleSubmit = () => {
+  const updateCandidateSchedule = async (candidateId, interviewDate, description) => {
+    try {
+      await axiosInstance.put(`/recruitment/candidates/${candidateId}`, {
+        interviewDate,
+        description,
+        status: "Scheduled",
+      });
+    } catch (error) {
+      console.error("Failed to update candidate schedule", error);
+      alert("Failed to schedule interview on the server.");
+      throw error;
+    }
+  };
+
+  const handleScheduleSubmit = async () => {
     if (!schedule.date || !schedule.description) {
       alert("Please fill in both date and description.");
       return;
     }
+
+    setSubmittingSchedule(true);
 
     const updatedCandidate = {
       ...selectedCandidate,
@@ -81,30 +109,41 @@ const Jobs = ({ setCandidatesData }) => {
       status: "Scheduled",
     };
 
-    const scheduled =
-      JSON.parse(localStorage.getItem("scheduledInterviews")) || [];
-    const filteredScheduled = scheduled.filter(
-      (sc) => sc._id !== selectedCandidate._id
-    );
-    filteredScheduled.push(updatedCandidate);
-    localStorage.setItem("scheduledInterviews", JSON.stringify(filteredScheduled));
+    try {
+      // Update backend
+      await updateCandidateSchedule(selectedCandidate._id, schedule.date, schedule.description);
 
-    const updatedRoleData = localCandidatesData[expandedRole].map((c) =>
-      c._id === selectedCandidate._id ? updatedCandidate : c
-    );
+      // Update localStorage
+      const scheduled =
+        JSON.parse(localStorage.getItem("scheduledInterviews")) || [];
+      const filteredScheduled = scheduled.filter(
+        (sc) => sc._id !== selectedCandidate._id
+      );
+      filteredScheduled.push(updatedCandidate);
+      localStorage.setItem("scheduledInterviews", JSON.stringify(filteredScheduled));
 
-    setLocalCandidatesData((prev) => ({
-      ...prev,
-      [expandedRole]: updatedRoleData,
-    }));
-    setCandidatesData((prev) => ({
-      ...prev,
-      [expandedRole]: updatedRoleData,
-    }));
+      // Update local state
+      const updatedRoleData = localCandidatesData[expandedRole].map((c) =>
+        c._id === selectedCandidate._id ? updatedCandidate : c
+      );
 
-    setSelectedCandidate(updatedCandidate);
-    alert("Interview scheduled!");
-    setSchedule({ date: "", description: "" });
+      setLocalCandidatesData((prev) => ({
+        ...prev,
+        [expandedRole]: updatedRoleData,
+      }));
+      setCandidatesData((prev) => ({
+        ...prev,
+        [expandedRole]: updatedRoleData,
+      }));
+
+      setSelectedCandidate(updatedCandidate);
+      alert("Interview scheduled!");
+      setSchedule({ date: "", description: "" });
+    } catch {
+      // error handled in updateCandidateSchedule
+    } finally {
+      setSubmittingSchedule(false);
+    }
   };
 
   const closeModal = () => {
@@ -150,7 +189,7 @@ const Jobs = ({ setCandidatesData }) => {
               <div id={`${role}-content`}>
                 <label htmlFor={`${role}-exp-filter`} className="exp-filter">
                   Filter by Experience:
-                </label>  
+                </label>
                 <select
                   id={`${role}-exp-filter`}
                   value={filters[role] || "All"}
@@ -216,11 +255,21 @@ const Jobs = ({ setCandidatesData }) => {
               &times;
             </button>
             <h2>Candidate Details</h2>
-            <p><strong>Name:</strong> {selectedCandidate.name}</p>
-            <p><strong>Contact:</strong> {selectedCandidate.contact}</p>
-            <p><strong>Email:</strong> {selectedCandidate.email}</p>
-            <p><strong>Gender:</strong> {selectedCandidate.gender}</p>
-            <p><strong>Experience:</strong> {selectedCandidate.experience}</p>
+            <p>
+              <strong>Name:</strong> {selectedCandidate.name}
+            </p>
+            <p>
+              <strong>Contact:</strong> {selectedCandidate.contact}
+            </p>
+            <p>
+              <strong>Email:</strong> {selectedCandidate.email}
+            </p>
+            <p>
+              <strong>Gender:</strong> {selectedCandidate.gender}
+            </p>
+            <p>
+              <strong>Experience:</strong> {selectedCandidate.experience}
+            </p>
             <hr />
             {selectedCandidate.status !== "Scheduled" ? (
               <>
@@ -242,16 +291,30 @@ const Jobs = ({ setCandidatesData }) => {
                   className="exp-dropdown"
                   style={{ marginBottom: 15 }}
                 />
-                <button onClick={handleScheduleSubmit} className="view-button">
-                  Submit
+                <button
+                  onClick={handleScheduleSubmit}
+                  className="view-button"
+                  disabled={submittingSchedule}
+                >
+                  {submittingSchedule ? "Submitting..." : "Submit"}
                 </button>
               </>
             ) : (
               <>
                 <h3>Interview Scheduled</h3>
-                <p><strong>Status:</strong> {selectedCandidate.status}</p>
-                <p><strong>Date:</strong> {selectedCandidate.interviewDate || "N/A"}</p>
-                <p><strong>Description:</strong> {selectedCandidate.description || "N/A"}</p>
+                <p>
+                  <strong>Status:</strong> {selectedCandidate.status}
+                </p>
+                <p>
+                  <strong>Date:</strong>{" "}
+                  {selectedCandidate.interviewDate
+                    ? new Date(selectedCandidate.interviewDate).toLocaleDateString()
+                    : "N/A"}
+                </p>
+                <p>
+                  <strong>Description:</strong>{" "}
+                  {selectedCandidate.description || "N/A"}
+                </p>
               </>
             )}
           </div>
@@ -261,7 +324,10 @@ const Jobs = ({ setCandidatesData }) => {
       {showCandidateForm && (
         <div className="modal-overlay" onClick={() => setShowCandidateForm(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowCandidateForm(false)}>
+            <button
+              className="modal-close"
+              onClick={() => setShowCandidateForm(false)}
+            >
               &times;
             </button>
             <CreateCandidate
